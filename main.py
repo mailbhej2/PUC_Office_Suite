@@ -36,8 +36,7 @@ def get_mid_body(puc_body,same_puc_body):
         response = model.generate_content(puc_body_with_direction)
         return response.text
 # Reminder table
-xl_file_path = r"C:\Users\deepa\OneDrive\Desktop\Dropbox\Deepak Soni\Office Work\Industries Branch (3IB-II)\All Files\A_File_Status.xlsx"
-df = pd.read_excel(xl_file_path)
+df = pd.read_csv(os.getenv('GOOGLE_SHEET_URL'))
 df["Reminder Date"] = pd.to_datetime(df["Reminder Date"], errors="coerce")
 st.set_page_config(layout="wide")
 st.title("Reminder")
