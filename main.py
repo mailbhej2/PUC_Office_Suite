@@ -98,10 +98,13 @@ if submitted:
     mid_para = get_mid_body(puc_body, same_puc_body)
     last_para = "In view of the above..." if forward == "No" else f"In view of the above, a copy of the PUC may be sent to {forwarding_dept} for further necessary action, as per the draft outlined below."
 
+    # For Noting placeholder
     replace_placeholder(doc_noting, "{{PUC_SUBJECT}}", puc_subject)
     replace_placeholder(doc_noting, "{{FIRST_PARA}}", first_para)
     replace_placeholder(doc_noting, "{{MID_PARA}}", mid_para)
     replace_placeholder(doc_noting, "{{LAST_PARA}}", last_para)
+    replace_placeholder(doc_noting, "{{FILE_NUMBER}}", file_number)
+    # For Draft placeholder
     replace_placeholder(doc_draft, "{{FILE_NUMBER}}", file_number)
     replace_placeholder(doc_draft, "{{BRANCH_CFMS_DATE}}", branch_cfms_date.strftime("%d.%m.%Y"))
     replace_placeholder(doc_draft, "{{PUC_SUBJECT}}", puc_subject)
