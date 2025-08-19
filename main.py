@@ -26,7 +26,7 @@ start_date = pd.Timestamp("today") - pd.Timedelta(days=3)
 end_date = pd.Timestamp("today") + pd.Timedelta(days=7)
 df_filtered = df[df["Reminder Date"].between(start_date, end_date)][["File No.", "Subject", "Reminder Date"]].copy()
 df_filtered["Reminder Date"] = df_filtered["Reminder Date"].dt.strftime("%d-%m-%y")
-df_filtered = df_filtered[['Reminder Date','File No.','Subject']]
+df_filtered = df_filtered[['File No.','Reminder Date','Subject']]
 df_filtered.index += 2
 st.set_page_config(page_title="Deepak | PUC Office Suite")
 st.title("Reminder")
