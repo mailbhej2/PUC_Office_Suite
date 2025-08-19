@@ -84,7 +84,7 @@ def download_btn(buffer, label, file_no, subject):
     st.download_button(
         label=f"Download {label}",
         data=buffer.getvalue(),
-        file_name=f"{file_no.replace('/', '-')}_{subject}-{label}.docx",
+        file_name=f"{file_no.replace('/', '-')} {subject}-{label}.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         key=f"{label}"
     )
