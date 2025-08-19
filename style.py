@@ -1,6 +1,6 @@
 def local_css():
     css = """
-    ..st-emotion-cache-1w723zb{
+    .st-emotion-cache-1w723zb{
         max-width:1024px !important;
     }
     .stAppHeader{
