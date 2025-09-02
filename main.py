@@ -22,8 +22,8 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 # Reminder Table
 df = pd.read_csv(os.getenv('GOOGLE_SHEET_URL'))
 df["Reminder Date"] = pd.to_datetime(df["Reminder Date"], errors="coerce")
-start_date = (pd.Timestamp("today") - pd.Timedelta(days=5)).strftime("%d-%m-%y")
-end_date = (pd.Timestamp("today") + pd.Timedelta(days=12)).strftime("%d-%m-%y")
+start_date = pd.Timestamp("today") - pd.Timedelta(days=5)
+end_date = pd.Timestamp("today") + pd.Timedelta(days=12)
 df_filtered = df[df["Reminder Date"].between(start_date, end_date)][["File No.", "Subject", "Reminder Date"]]
 df_filtered = df_filtered.sort_values("Reminder Date")
 df_filtered["Reminder Date"] = df_filtered["Reminder Date"].dt.strftime("%d-%m-%y")
