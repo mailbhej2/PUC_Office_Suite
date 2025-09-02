@@ -30,7 +30,7 @@ df_filtered = df_filtered[['File No.','Reminder Date','Subject']]
 df_filtered.index += 2
 st.set_page_config(page_title="Deepak | PUC Office Suite")
 st.title("Reminder")
-st.dataframe(df_filtered.sort_values(by="Reminder Date"))
+st.dataframe(df_filtered.sort_values(by="Reminder Date",ascending=True))
 
 # Form UI
 st.title("Deepak | PUC Office Suite")
