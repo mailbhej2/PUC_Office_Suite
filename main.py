@@ -22,8 +22,8 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 # Reminder Table
 df = pd.read_csv(os.getenv('GOOGLE_SHEET_URL'))
 df["Reminder Date"] = pd.to_datetime(df["Reminder Date"], errors="coerce")
-start_date = pd.Timestamp("today") - pd.Timedelta(days=3)
-end_date = pd.Timestamp("today") + pd.Timedelta(days=7)
+start_date = pd.Timestamp("today") - pd.Timedelta(days=5)
+end_date = pd.Timestamp("today") + pd.Timedelta(days=12)
 df_filtered = df[df["Reminder Date"].between(start_date, end_date)][["File No.", "Subject", "Reminder Date"]].copy()
 df_filtered["Reminder Date"] = df_filtered["Reminder Date"].dt.strftime("%d-%m-%y")
 df_filtered = df_filtered[['File No.','Reminder Date','Subject']]
@@ -110,7 +110,7 @@ if submitted:
     replace_placeholder(doc_draft, "{{BRANCH_CFMS_DATE}}", branch_cfms_date.strftime("%d.%m.%Y"))
     replace_placeholder(doc_draft, "{{PUC_SUBJECT}}", puc_subject)
     replace_placeholder(doc_draft, "{{PUC_NUMBER}}", puc_no)
-    replace_placeholder(doc_draft, "{{PUC_DATE}}", puc_date)
+    replace_placeholder(doc_draft, "{{PUC_DATE}}", puc_date.strftime("%d.%m.%Y"))
     replace_placeholder(doc_draft, "{{PUC_SENDER}}", puc_sender)
 
     noting_buffer = BytesIO(); doc_noting.save(noting_buffer); noting_buffer.seek(0)
