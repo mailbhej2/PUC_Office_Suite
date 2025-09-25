@@ -47,7 +47,7 @@ with st.form("puc_form"):
     puc_subject = st.text_input("PUC Subject")
     puc_body = st.text_area("PUC Body")
     col4, col5, col6 = st.columns(3)
-    same_puc_body = col4.selectbox("Same PUC Body?", ["No", "Yes"])
+    same_puc_body = col4.selectbox("Same PUC Body?", ["Yes", "No"])
     forward = col5.selectbox("Forward?", ["No", "Yes"])
     forwarding_dept = col6.text_input("Forwarding Deptt.")
     submitted = st.form_submit_button("Generate Files")
