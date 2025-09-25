@@ -39,7 +39,7 @@ with st.form("puc_form"):
     file_number = file_no_col.text_input("File Number")
     branch_cfms_no = branch_cfms_no_col.text_input("Branch CFMS No.")
     branch_cfms_date = branch_cfms_date_col.date_input("Branch CFMS Date", value=date.today())
-    draft_type = draft_type_col.selectbox("Draft Type", ["Single_Draft", "Multi_Draft", "Hindi_Draft"])
+    draft_type = draft_type_col.selectbox("Draft Type", ["Single_Draft", "Multi_Draft", "Hindi_Draft","UO_Draft"])
     col1, col2, col3 = st.columns(3)
     puc_no = col1.text_input("PUC No.")
     puc_date = col2.date_input("PUC Date", value=date.today())
