@@ -7,7 +7,6 @@ from io import BytesIO
 import os
 from dotenv import load_dotenv
 from style import local_css
-
 # Load CSS
 st.markdown(f"<style>{local_css()}</style>", unsafe_allow_html=True)
 
@@ -19,11 +18,15 @@ downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
 OUTPUT_FOLDER = os.path.join(downloads_path, "output_folder")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
+# ✅ Page config (must be before switch_page)
+st.set_page_config(page_title="Deepak | PUC Office Suite")
+
 # ---- TOP RIGHT NAV BUTTON ----
 col_nav1, col_nav2 = st.columns([9, 1])
 with col_nav2:
     if st.button("File Status"):
         st.switch_page("pages/file_status.py")
+
 
 # Reminder Table
 df = pd.read_csv(os.getenv('GOOGLE_SHEET_URL'))
