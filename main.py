@@ -19,6 +19,12 @@ downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
 OUTPUT_FOLDER = os.path.join(downloads_path, "output_folder")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
+# ---- TOP RIGHT NAV BUTTON ----
+col_nav1, col_nav2 = st.columns([9, 1])
+with col_nav2:
+    if st.button("File Status"):
+        st.switch_page("pages/file_status.py")
+
 # Reminder Table
 df = pd.read_csv(os.getenv('GOOGLE_SHEET_URL'))
 df["Reminder Date"] = pd.to_datetime(df["Reminder Date"], errors="coerce",dayfirst=True)
