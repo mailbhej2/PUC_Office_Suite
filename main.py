@@ -21,7 +21,7 @@ st.set_page_config(page_title="Deepak | PUC Office Suite")
 col_nav1, col_nav2 = st.columns([9, 1])
 with col_nav2:
     if st.button("File Status"):
-        st.switch_page("pages/file_status.py")
+        st.switch_page("pages/1_File_Status.py")
 
 
 # ---------------------------------------------------------
