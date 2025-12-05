@@ -27,6 +27,4 @@ columns_to_show = [
 
 # Filter only available columns (avoids errors)
 available_cols = [col for col in columns_to_show if col in df.columns]
-
-st.title("File Status")
 st.dataframe(df[available_cols])
