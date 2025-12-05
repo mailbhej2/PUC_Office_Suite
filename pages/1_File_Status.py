@@ -12,6 +12,7 @@ load_dotenv()
 # Read Google Sheet
 df = pd.read_csv(os.getenv("GOOGLE_SHEET_URL"))
 df.index += 1
+df["Last Dealt On"] = pd.to_datetime(df["Last Dealt On"], dayfirst=True, errors='coerce')
 df = df.sort_values("Last Dealt On")
 # 🔹 Specify which columns you want to show
 # Just change this list anytime
