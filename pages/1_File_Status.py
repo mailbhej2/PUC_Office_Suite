@@ -17,7 +17,7 @@ df["Last Dealt On"] = pd.to_datetime(df["Last Dealt On"], dayfirst=True, errors=
 df["Reminder Date"] = pd.to_datetime(df["Reminder Date"], dayfirst=True, errors='coerce')
 
 # Sort while still datetime
-df = df.sort_values("Last Dealt On")
+df = df.sort_values("Last Dealt On",ascending=False)
 
 # After sorting -> convert for display only
 df["Last Dealt On"] = df["Last Dealt On"].dt.strftime("%d-%m-%y")
