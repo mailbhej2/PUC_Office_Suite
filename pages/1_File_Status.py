@@ -10,7 +10,7 @@ load_dotenv()
 
 # Read Google Sheet
 df = pd.read_csv(os.getenv("GOOGLE_SHEET_URL"))
-df.index += 1
+df.index += 2
 
 # Convert to datetime for proper sorting
 df["Last Dealt On"] = pd.to_datetime(df["Last Dealt On"], dayfirst=True, errors='coerce')
