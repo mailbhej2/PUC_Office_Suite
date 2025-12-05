@@ -11,7 +11,7 @@ load_dotenv()
 
 # Read Google Sheet
 df = pd.read_csv(os.getenv("GOOGLE_SHEET_URL"))
-df.index += 2
+df.index += 1
 # 🔹 Specify which columns you want to show
 # Just change this list anytime
 columns_to_show = [
