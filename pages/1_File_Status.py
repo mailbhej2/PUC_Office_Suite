@@ -35,5 +35,5 @@ columns_to_show = [
 ]
 
 available_cols = [col for col in columns_to_show if col in df.columns]
-
+df = df[df["File No."].notna() & (df["File No."].astype(str).str.strip() != "")]
 st.dataframe(df[available_cols], use_container_width=True)
