@@ -18,14 +18,26 @@ st.set_page_config(page_title="Deepak | PUC Office Suite")
 # ---------------------------------------------------------
 # 🔹 2. TOP-RIGHT NAV BUTTON
 # ---------------------------------------------------------
-col_nav1, col_nav2 = st.columns([9, 1])
+col_nav1, col_nav2, col_nav3 = st.columns([8, 1, 1])
+
 with col_nav2:
     if st.button("File Status"):
         st.session_state.go_file_status = True
 
+with col_nav3:
+    if st.button("Table Extractor"):
+        st.session_state.go_table_extractor = True
+
+
 if st.session_state.get("go_file_status"):
     st.session_state.go_file_status = False
     st.switch_page("pages/1_File_Status.py")
+
+
+if st.session_state.get("go_table_extractor"):
+    st.session_state.go_table_extractor = False
+    st.switch_page("pages/2_Table_Extractor.py")
+
 
 
 # ---------------------------------------------------------
