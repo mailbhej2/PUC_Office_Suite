@@ -4,3 +4,7 @@ python-docx
 pandas
 python-dotenv
 requests
+img2table
+pytesseract
+pillow
+opencv-python-headless
