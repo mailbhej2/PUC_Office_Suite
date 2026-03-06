@@ -183,7 +183,7 @@ if submitted:
     replace_placeholder(doc_noting, "{{MID_PARA}}", mid_para)
     replace_placeholder(doc_noting, "{{LAST_PARA}}", last_para)
     replace_placeholder(doc_noting, "{{FILE_NUMBER}}", file_number)
-
+    replace_placeholder(doc_noting, "{{TODAY_DATE}}", date.today().strftime("%d-%m-%y"))
     # Draft replacements
     replace_placeholder(doc_draft, "{{FILE_NUMBER}}", file_number)
     replace_placeholder(doc_draft, "{{BRANCH_CFMS_DATE}}", branch_cfms_date.strftime("%d.%m.%Y"))
