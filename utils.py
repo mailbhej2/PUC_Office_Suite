@@ -70,7 +70,7 @@ def get_reminders():
                 df_filtered[
                     [
                         "File No.",
-                        "Last Dealt On"
+                        "Last Dealt On",
                         "Reminder Date",
                         "Subject"
                     ]
