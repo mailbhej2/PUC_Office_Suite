@@ -1,226 +1,355 @@
 import streamlit as st
-import pandas as pd
-import google.generativeai as genai
 from docx import Document
 from datetime import date
 from io import BytesIO
-import os
-from dotenv import load_dotenv
 from style import local_css
+from utils import get_reminders, replace_placeholder, data
 
+# =========================================================
+# PAGE CONFIG
+# =========================================================
+st.set_page_config(
+    page_title="Deepak | PUC Office Suite"
+)
+st.markdown(
+    f"<style>{local_css()}</style>",
+    unsafe_allow_html=True
+)
 
-# ---------------------------------------------------------
-# 🔹 1. PAGE CONFIG (must be first Streamlit command)
-# ---------------------------------------------------------
-st.set_page_config(page_title="Deepak | PUC Office Suite")
+get_reminders()  # get reminders
 
+# =========================================================
+# PAGE NAVIGATION
+# =========================================================
+col1, col2, col3 = st.columns([8, 1, 1])
 
-# ---------------------------------------------------------
-# 🔹 2. TOP-RIGHT NAV BUTTON
-# ---------------------------------------------------------
-col_nav1, col_nav2, col_nav3 = st.columns([8, 1, 1])
-
-with col_nav2:
+with col2:
     if st.button("File Status"):
-        st.session_state.go_file_status = True
+        st.switch_page(
+            "pages/1_File_Status.py"
+        )
 
-with col_nav3:
+with col3:
     if st.button("Table Extractor"):
-        st.session_state.go_table_extractor = True
-
-
-if st.session_state.get("go_file_status"):
-    st.session_state.go_file_status = False
-    st.switch_page("pages/1_File_Status.py")
-
-
-if st.session_state.get("go_table_extractor"):
-    st.session_state.go_table_extractor = False
-    st.switch_page("pages/2_Table_Extractor.py")
+        st.switch_page(
+            "pages/2_Table_Extractor.py"
+        )
 
 
 
-# ---------------------------------------------------------
-# 🔹 3. LOAD CSS
-# ---------------------------------------------------------
-st.markdown(f"<style>{local_css()}</style>", unsafe_allow_html=True)
+# =========================================================
+# TITLE
+# =========================================================
+st.title(
+    "Deepak | PUC Office Suite"
+)
 
 
-# ---------------------------------------------------------
-# 🔹 4. LOAD ENV + AI MODEL CONFIG
-# ---------------------------------------------------------
-load_dotenv()
-genai.configure(api_key=os.getenv("GENAI_API_KEY"))
-model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-
-downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
-OUTPUT_FOLDER = os.path.join(downloads_path, "output_folder")
-os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+# =========================================================
+# TYPE SELECTOR
+# =========================================================
+draft_mode = st.radio(
+    "Select Type",
+    ["General", "Medical"],
+    horizontal=True
+)
 
 
-# ---------------------------------------------------------
-# 🔹 5. REMINDER TABLE
-# ---------------------------------------------------------
-df = pd.read_csv(os.getenv('GOOGLE_SHEET_URL'))
-df["Reminder Date"] = pd.to_datetime(df["Reminder Date"], errors="coerce", dayfirst=True)
+# =========================================================
+# FORM
+# =========================================================
+with st.form("main_form"):
 
-start_date = pd.Timestamp("today") - pd.Timedelta(days=5)
-end_date = pd.Timestamp("today") + pd.Timedelta(days=15)
+    # -----------------------------------------------------
+    # COMMON FIELDS
+    # -----------------------------------------------------
+    c1, c2, c3 = st.columns(3)
 
-df_filtered = df[df["Reminder Date"].between(start_date, end_date)][["File No.", "Subject", "Reminder Date"]]
-df_filtered = df_filtered.sort_values("Reminder Date")
-df_filtered["Reminder Date"] = df_filtered["Reminder Date"].dt.strftime("%d-%m-%y")
-df_filtered.index += 2
-
-st.title("Reminder")
-st.dataframe(df_filtered[['File No.', 'Reminder Date', 'Subject']])
-
-
-# ---------------------------------------------------------
-# 🔹 6. FORM UI
-# ---------------------------------------------------------
-st.title("Deepak | PUC Office Suite")
-
-with st.form("puc_form"):
-
-    file_no_col, branch_cfms_no_col, branch_cfms_date_col, draft_type_col = st.columns(4)
-    file_number = file_no_col.text_input("File Number")
-    branch_cfms_no = branch_cfms_no_col.text_input("Branch CFMS No.")
-    branch_cfms_date = branch_cfms_date_col.date_input("Branch CFMS Date", value=date.today())
-    draft_type = draft_type_col.selectbox(
-        "Draft Type",
-        ["Single_Draft", "Multi_Draft", "Hindi_Draft", "UO_Draft"]
+    file_number = c1.text_input(
+        "File Number"
     )
 
-    col1, col2, col3 = st.columns(3)
-    puc_no = col1.text_input("PUC No.")
-    puc_date = col2.date_input("PUC Date", value=date.today())
-    puc_sender = col3.text_input("PUC Sender")
+    branch_cfms_number = c2.text_input(
+        "Branch CFMS No."
+    )
 
-    puc_subject = st.text_input("PUC Subject")
-    puc_body = st.text_area("PUC Body")
+    branch_cfms_date = c3.date_input(
+        "Branch CFMS Date",
+        value=date.today()
+    )
 
-    col4, col5, col6 = st.columns(3)
-    same_puc_body = col4.selectbox("Same PUC Body?", ["Yes", "No"])
-    forward = col5.selectbox("Forward?", ["No", "Yes"])
-    forwarding_dept = col6.text_input("Forwarding Deptt.")
+    c4, c5, c6 = st.columns(3)
 
-    submitted = st.form_submit_button("Generate Files")
+    puc_number = c4.text_input(
+        "PUC No."
+    )
+
+    puc_date = c5.date_input(
+        "PUC Date",
+        value=date.today()
+    )
+
+    puc_sender = c6.text_input(
+        "PUC Sender"
+    )
+
+    puc_subject = st.text_input(
+        "PUC Subject"
+    )
 
 
-# ---------------------------------------------------------
-# 🔹 7. GENERATE MID-PARA USING AI
-# ---------------------------------------------------------
-def get_mid_body(puc_body, same_puc_body):
-    if same_puc_body == "Yes":
-        return puc_body
+    # -----------------------------------------------------
+    # GENERAL
+    # -----------------------------------------------------
+    if draft_mode == "General":
+
+        draft_type = st.selectbox(
+            "Draft Type",
+            [
+                "Single_Draft",
+                "Multi_Draft",
+                "Hindi_Draft",
+                "UO_Draft"
+            ],
+            index=0
+        )
+
+
+    # -----------------------------------------------------
+    # MEDICAL
+    # -----------------------------------------------------
     else:
-        directions = """
-        1. Start the first para with 'Vide PUC they have informed...'
-        2. Language should be easy to understand and formal.
-        """
-        prompt = f"""
-        Please make brief paras on {puc_body}. You must strictly comply with below directions:
-        {directions}
-        """
-        response = model.generate_content(prompt)
-        return response.text
+
+        c7, c8 = st.columns(2)
+
+        claimant_name = c7.text_input(
+            "Claimant Name"
+        )
+
+        claimant_office = c8.text_input(
+            "Claimant Office"
+        )
+
+        c9, c10 = st.columns(2)
+
+        patient_name = c9.text_input(
+            "Patient Name"
+        )
+
+        relation_with_claimant = c10.text_input(
+            "Relation With Claimant"
+        )
+
+        c11, c12 = st.columns(2)
+
+        hospital_name = c11.text_input(
+            "Hospital Name"
+        )
+
+        civil_surgeon = c12.text_input(
+            "Civil Surgeon"
+        )
+
+        c13, c14 = st.columns(2)
+
+        treatment_from = c13.date_input(
+            "Treatment From",
+            value=date.today()
+        )
+
+        treatment_to = c14.date_input(
+            "Treatment To",
+            value=date.today()
+        )
+
+        c15, c16 = st.columns(2)
+
+        claim_amount = c15.text_input(
+            "Claim Amount"
+        )
+
+        head = c16.text_input(
+            "Head"
+        )
 
 
-# ---------------------------------------------------------
-# 🔹 8. REPLACE PLACEHOLDERS
-# ---------------------------------------------------------
-def replace_placeholder(doc, placeholder, value):
-    for p in doc.paragraphs:
-        if placeholder in p.text:
-            full_text = "".join(run.text for run in p.runs)
-            new_text = full_text.replace(placeholder, str(value))
-
-            for run in p.runs[1:]:
-                p._element.remove(run._element)
-            p.runs[0].text = new_text
-
-
-# ---------------------------------------------------------
-# 🔹 9. DOWNLOAD BUTTON HELPER
-# ---------------------------------------------------------
-def download_btn(buffer, label, file_no, subject):
-    st.download_button(
-        label=f"Download {label}",
-        data=buffer.getvalue(),
-        file_name=f"{file_no.replace('/', '-')} {subject}-{label}.docx",
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        key=f"{label}"
+    submitted = st.form_submit_button(
+        "Generate Files"
     )
 
 
-# ---------------------------------------------------------
-# 🔹 10. GENERATE DOC FILES
-# ---------------------------------------------------------
+# =========================================================
+# GENERATE FILES
+# =========================================================
 if submitted:
 
-    doc_noting = Document("files/Noting.docx")
-    doc_draft = Document(f"files/{draft_type}.docx")
+    # -----------------------------------------------------
+    # TEMPLATE PATHS
+    # -----------------------------------------------------
+    if draft_mode == "General":
 
-    first_para = (
-        f"PUC no. {puc_no} dated {puc_date.strftime('%d.%m.%Y')} sent by {puc_sender} "
-        f"and received through CFMS no. {branch_cfms_no} dated {branch_cfms_date.strftime('%d.%m.%Y')}, "
-        f"may kindly be perused."
+        noting_path = (
+            "files/Noting.docx"
+        )
+
+        draft_path = (
+            f"files/{draft_type}.docx"
+        )
+
+    else:
+
+        noting_path = (
+            "files/Medical_Noting.docx"
+        )
+
+        draft_path = (
+            "files/Medical_Draft.docx"
+        )
+
+
+    # -----------------------------------------------------
+    # LOAD DOCUMENTS
+    # -----------------------------------------------------
+    doc_noting = Document(
+        noting_path
     )
 
-    mid_para = get_mid_body(puc_body, same_puc_body)
-
-    last_para = (
-        "In view of the above..."
-        if forward == "No"
-        else f"In view of the above, a copy of the PUC may be sent to {forwarding_dept} "
-             "for further necessary action, as per the draft outlined below."
+    doc_draft = Document(
+        draft_path
     )
 
-    # Noting replacements
-    replace_placeholder(doc_noting, "{{PUC_SUBJECT}}", puc_subject)
-    replace_placeholder(doc_noting, "{{FIRST_PARA}}", first_para)
-    replace_placeholder(doc_noting, "{{MID_PARA}}", mid_para)
-    replace_placeholder(doc_noting, "{{LAST_PARA}}", last_para)
-    replace_placeholder(doc_noting, "{{FILE_NUMBER}}", file_number)
-    replace_placeholder(doc_noting, "{{TODAY_DATE}}", date.today().strftime("%d-%m-%y"))
-    # Draft replacements
-    replace_placeholder(doc_draft, "{{FILE_NUMBER}}", file_number)
-    replace_placeholder(doc_draft, "{{BRANCH_CFMS_DATE}}", branch_cfms_date.strftime("%d.%m.%Y"))
-    replace_placeholder(doc_draft, "{{PUC_SUBJECT}}", puc_subject)
-    replace_placeholder(doc_draft, "{{PUC_NUMBER}}", puc_no)
-    replace_placeholder(doc_draft, "{{PUC_DATE}}", puc_date.strftime("%d.%m.%Y"))
-    replace_placeholder(doc_draft, "{{PUC_SENDER}}", puc_sender)
 
+    # -----------------------------------------------------
+    # MEDICAL DATA
+    # -----------------------------------------------------
+    if draft_mode == "Medical":
+
+        data.update({
+
+            "{{CLAIMANT_NAME}}":
+                claimant_name,
+
+            "{{CLAIMANT_OFFICE}}":
+                claimant_office,
+
+            "{{PATIENT_NAME}}":
+                patient_name,
+
+            "{{RELATION_WITH_CLAIMANT}}":
+                relation_with_claimant,
+
+            "{{HOSPITAL_NAME}}":
+                hospital_name,
+
+            "{{CIVIL_SURGEON}}":
+                civil_surgeon,
+
+            "{{CLAIM_AMOUNT}}":
+                claim_amount,
+
+            "{{HEAD}}":
+                head,
+
+            "{{TREATMENT_FROM}}":
+                treatment_from.strftime(
+                    "%d.%m.%Y"
+                ),
+
+            "{{TREATMENT_TO}}":
+                treatment_to.strftime(
+                    "%d.%m.%Y"
+                )
+        })
+
+
+    # -----------------------------------------------------
+    # REPLACE PLACEHOLDERS
+    # -----------------------------------------------------
+    replace_placeholder(
+        doc_noting,
+        data
+    )
+
+    replace_placeholder(
+        doc_draft,
+        data
+    )
+
+
+    # -----------------------------------------------------
+    # SAVE BUFFERS IN SESSION STATE
+    # -----------------------------------------------------
     noting_buffer = BytesIO()
-    doc_noting.save(noting_buffer)
+
+    doc_noting.save(
+        noting_buffer
+    )
+
     noting_buffer.seek(0)
 
+
     draft_buffer = BytesIO()
-    doc_draft.save(draft_buffer)
-    draft_buffer.seek(0)
 
-    st.session_state.noting_buffer = noting_buffer
-    st.session_state.draft_buffer = draft_buffer
-    st.session_state.puc_subject = puc_subject
-    st.session_state.file_number = file_number
-
-
-# ---------------------------------------------------------
-# 🔹 11. SHOW DOWNLOAD BUTTONS
-# ---------------------------------------------------------
-if "noting_buffer" in st.session_state:
-    download_btn(
-        st.session_state.noting_buffer,
-        "Noting",
-        st.session_state.file_number,
-        st.session_state.puc_subject
+    doc_draft.save(
+        draft_buffer
     )
 
+    draft_buffer.seek(0)
+
+
+    st.session_state.noting_buffer = (
+        noting_buffer
+    )
+
+    st.session_state.draft_buffer = (
+        draft_buffer
+    )
+
+    st.session_state.file_number = (
+        file_number
+    )
+
+    st.session_state.puc_subject = (
+        puc_subject
+    )
+
+    st.success(
+        "Files Generated Successfully"
+    )
+
+
+# =========================================================
+# DOWNLOAD BUTTONS
+# =========================================================
+if "noting_buffer" in st.session_state:
+
+    st.download_button(
+        label="Download Noting",
+        data=st.session_state.noting_buffer.getvalue(),
+        file_name=(
+            f"{st.session_state.file_number.replace('/', '-')}"
+            f" {st.session_state.puc_subject}-Noting.docx"
+        ),
+        mime=(
+            "application/"
+            "vnd.openxmlformats-officedocument"
+            ".wordprocessingml.document"
+        )
+    )
+
+
 if "draft_buffer" in st.session_state:
-    download_btn(
-        st.session_state.draft_buffer,
-        "Draft",
-        st.session_state.file_number,
-        st.session_state.puc_subject
+
+    st.download_button(
+        label="Download Draft",
+        data=st.session_state.draft_buffer.getvalue(),
+        file_name=(
+            f"{st.session_state.file_number.replace('/', '-')}"
+            f" {st.session_state.puc_subject}-Draft.docx"
+        ),
+        mime=(
+            "application/"
+            "vnd.openxmlformats-officedocument"
+            ".wordprocessingml.document"
+        )
     )

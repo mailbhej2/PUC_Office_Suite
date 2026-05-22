@@ -9,7 +9,23 @@ st.title("File Status")
 load_dotenv()
 
 # Read Google Sheet
-df = pd.read_csv(os.getenv("GOOGLE_SHEET_URL"))
+
+google_sheet_url = os.getenv(
+    "GOOGLE_SHEET_URL"
+)
+
+if not google_sheet_url:
+
+    st.warning(
+        "GOOGLE_SHEET_URL not found in .env"
+    )
+
+    st.stop()
+
+# Read Google Sheet
+df = pd.read_csv(
+    google_sheet_url
+)
 df.index += 2
 
 # Convert to datetime for proper sorting
