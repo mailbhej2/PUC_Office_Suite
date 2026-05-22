@@ -3,7 +3,7 @@ from docx import Document
 from datetime import date
 from io import BytesIO
 from style import local_css
-from utils import get_reminders, replace_placeholder, data
+from utils import get_reminders, replace_placeholder
 
 # =========================================================
 # PAGE CONFIG
@@ -217,7 +217,36 @@ if submitted:
     doc_draft = Document(
         draft_path
     )
+    # -----------------------------------------------------
+    # Common DATA
+    # -----------------------------------------------------
+    data = {
 
+        "{{FILE_NUMBER}}":
+            file_number,
+
+        "{{BRANCH_CFMS_NUMBER}}":
+            branch_cfms_number,
+
+        "{{BRANCH_CFMS_DATE}}":
+            branch_cfms_date.strftime(
+                "%d.%m.%Y"
+            ),
+
+        "{{PUC_NUMBER}}":
+            puc_number,
+
+        "{{PUC_DATE}}":
+            puc_date.strftime(
+                "%d.%m.%Y"
+            ),
+
+        "{{PUC_SENDER}}":
+            puc_sender,
+
+        "{{PUC_SUBJECT}}":
+            puc_subject
+    }
 
     # -----------------------------------------------------
     # MEDICAL DATA

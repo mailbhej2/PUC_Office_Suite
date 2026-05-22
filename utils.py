@@ -102,33 +102,5 @@ def replace_placeholder(doc, data):
                     run._element
                 )
 
-# ---------------------------------- common data ------------------
 
-data = {
-
-        "{{FILE_NUMBER}}":
-            file_number,
-
-        "{{BRANCH_CFMS_NUMBER}}":
-            branch_cfms_number,
-
-        "{{BRANCH_CFMS_DATE}}":
-            branch_cfms_date.strftime(
-                "%d.%m.%Y"
-            ),
-
-        "{{PUC_NUMBER}}":
-            puc_number,
-
-        "{{PUC_DATE}}":
-            puc_date.strftime(
-                "%d.%m.%Y"
-            ),
-
-        "{{PUC_SENDER}}":
-            puc_sender,
-
-        "{{PUC_SUBJECT}}":
-            puc_subject
-    }
 
