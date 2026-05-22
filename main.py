@@ -16,8 +16,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-get_reminders()  # get reminders
-
 # =========================================================
 # PAGE NAVIGATION
 # =========================================================
@@ -35,6 +33,7 @@ with col3:
             "pages/2_Table_Extractor.py"
         )
 
+get_reminders()  # get reminders
 
 
 # =========================================================
