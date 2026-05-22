@@ -1,5 +1,9 @@
 def local_css():
     css = """
+    .st-emotion-cache-6urfhe.en7m6i60 p{
+        font-size:18px;
+        font-weight:bold;
+    }
     .st-emotion-cache-1w723zb{
         max-width:1024px !important;
     }
