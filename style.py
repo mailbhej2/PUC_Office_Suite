@@ -7,7 +7,7 @@ def local_css():
         background-color: #2a8359 !important;
     }
     button.st-emotion-cache-1anq8dj {
-        background-color: #2a8359 !important;
+        background-color: #93c47d !important;
         color: white !important;
         border-radius: 6px !important;
         padding: 10px 20px !important;
