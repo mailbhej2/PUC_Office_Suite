@@ -11,37 +11,48 @@ from utils import get_reminders, replace_placeholder
 st.set_page_config(
     page_title="Deepak | PUC Office Suite"
 )
+
 st.markdown(
     f"<style>{local_css()}</style>",
     unsafe_allow_html=True
 )
 
-# =========================================================
-# PAGE NAVIGATION
-# =========================================================
-col1, col2, col3 = st.columns([6, 2, 2])
+st.title("Deepak | PUC Office Suite")
 
-with col2:
-    if st.button("File Status"):
+
+# =========================================================
+# TOP NAVIGATION
+# =========================================================
+nav1, nav2, nav3 = st.columns([6, 2, 2])
+
+with nav2:
+    if st.button(
+        "📂 File Status",
+        use_container_width=True
+    ):
         st.switch_page(
             "pages/1_File_Status.py"
         )
 
-with col3:
-    if st.button("Table Extractor"):
+with nav3:
+    if st.button(
+        "📊 Table Extractor",
+        use_container_width=True
+    ):
         st.switch_page(
             "pages/2_Table_Extractor.py"
         )
 
-get_reminders()  # get reminders
-
 
 # =========================================================
-# TITLE
+# REMINDERS
 # =========================================================
-st.title(
-    "Deepak | PUC Office Suite"
-)
+with st.expander(
+    "🔔 Upcoming Reminders",
+    expanded=True
+):
+
+    get_reminders()
 
 
 # =========================================================
