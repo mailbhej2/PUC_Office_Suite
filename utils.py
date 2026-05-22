@@ -60,7 +60,7 @@ def get_reminders():
 
             df_filtered.index += 2
 
-            st.subheader("Reminder")
+            st.subheader(f"Reminders {len(df)}")
 
             st.dataframe(
                 df_filtered[
