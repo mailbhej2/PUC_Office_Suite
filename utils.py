@@ -61,7 +61,7 @@ def get_reminders():
             df_filtered.index += 2
 
             st.markdown(
-                f"<h4 style='font-size:18px;'>Reminders ({len(df_filtered)})</h4>",
+                f"<h4 style='font-size:20px;'>Reminders ({len(df_filtered)})</h4>",
                 unsafe_allow_html=True
             )
 
