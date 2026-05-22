@@ -59,7 +59,7 @@ with st.expander(
 # TYPE SELECTOR
 # =========================================================
 draft_mode = st.radio(
-    "Select Type",
+    "File Maker",
     ["General", "Medical"],
     horizontal=True
 )
