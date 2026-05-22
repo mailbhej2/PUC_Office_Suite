@@ -21,7 +21,7 @@ get_reminders()  # get reminders
 # =========================================================
 # PAGE NAVIGATION
 # =========================================================
-col1, col2, col3 = st.columns([8, 1, 1])
+col1, col2, col3 = st.columns([6, 2, 2])
 
 with col2:
     if st.button("File Status"):
