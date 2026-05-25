@@ -1,3 +1,4 @@
+import re
 import cv2
 import tempfile
 import pandas as pd
@@ -19,98 +20,107 @@ st.title("Table Extractor")
 
 
 # =========================================================
-# UPLOAD
+# SMART TABLE PARSER
 # =========================================================
-uploaded_file = st.file_uploader(
-    "Upload Table Image",
-    type=["jpg", "jpeg", "png"]
-)
+def parse_table(text):
+
+    # -----------------------------------------------------
+    # CLEAN TEXT
+    # -----------------------------------------------------
+    text = re.sub(
+        r"[|_\[\]]",
+        " ",
+        text
+    )
+
+    text = re.sub(
+        r"\s+",
+        " ",
+        text
+    )
 
 
-# =========================================================
-# OCR LINE PARSER
-# =========================================================
-import re
-
-
-def parse_table(lines):
-
-    rows = []
-
-    current = []
-
-    for line in lines:
-
-        # remove extra spaces
-        line = re.sub(
-            r"\s+",
-            " ",
-            line
-        ).strip()
-
-
-        # detect row starting with number
-        if re.match(r"^\d+", line):
-
-            if current:
-                rows.append(
-                    " ".join(current)
-                )
-
-            current = [line]
-
-        else:
-
-            current.append(line)
-
-
-    if current:
-        rows.append(
-            " ".join(current)
-        )
-
+    # -----------------------------------------------------
+    # SPLIT ROWS USING SERIAL NUMBERS
+    # -----------------------------------------------------
+    rows = re.split(
+        r"(?=\s\d{1,2}\.?\s)",
+        text
+    )
 
     final_rows = []
 
+
+    # -----------------------------------------------------
+    # PROCESS EACH ROW
+    # -----------------------------------------------------
     for row in rows:
 
-        parts = re.split(
-            r"\s+(Serving|Retired)\s+",
-            row,
-            maxsplit=1
+        row = row.strip()
+
+        if not row:
+            continue
+
+
+        # Extract serial no
+        sr_match = re.match(
+            r"(\d{1,2})\.?\s+(.*)",
+            row
         )
 
-        if len(parts) >= 3:
+        if not sr_match:
+            continue
 
-            left = parts[0]
+        sr_no = sr_match.group(1)
 
-            status = parts[1]
-
-            address = parts[2]
+        remaining = sr_match.group(2)
 
 
-            # extract serial no + name
-            m = re.match(
-                r"^(\d+)\.?\s*(.*)",
-                left
-            )
+        # Detect status
+        status_match = re.search(
+            r"\b(Serving|Retired)\b",
+            remaining,
+            re.IGNORECASE
+        )
 
-            if m:
+        if not status_match:
+            continue
 
-                sr_no = m.group(1)
+        status = status_match.group(1)
 
-                name = m.group(2)
+        split_index = status_match.start()
 
-                final_rows.append([
+        name = remaining[:split_index].strip()
 
-                    sr_no,
+        address = remaining[
+            status_match.end():
+        ].strip()
 
-                    name,
 
-                    status,
+        # Remove garbage OCR chars
+        name = re.sub(
+            r"[^A-Za-z0-9.&()\\-\\s]",
+            "",
+            name
+        )
 
-                    address
-                ])
+        address = re.sub(
+            r"\\s+",
+            " ",
+            address
+        ).strip()
+
+
+        final_rows.append([
+
+            sr_no,
+
+            name,
+
+            status,
+
+            address
+        ])
 
 
     return pd.DataFrame(
@@ -124,6 +134,16 @@ def parse_table(lines):
             "Address"
         ]
     )
+
+
+# =========================================================
+# UPLOAD IMAGE
+# =========================================================
+uploaded_file = st.file_uploader(
+    "Upload Table Image",
+    type=["jpg", "jpeg", "png"]
+)
+
 
 # =========================================================
 # PROCESS
@@ -154,7 +174,7 @@ if uploaded_file:
 
 
     # -----------------------------------------------------
-    # PREPROCESS
+    # PREPROCESS IMAGE
     # -----------------------------------------------------
     img = cv2.imread(temp_path)
 
@@ -163,7 +183,7 @@ if uploaded_file:
         cv2.COLOR_BGR2GRAY
     )
 
-    # upscale for better OCR
+    # upscale
     gray = cv2.resize(
 
         gray,
@@ -179,11 +199,8 @@ if uploaded_file:
 
     # denoise
     gray = cv2.GaussianBlur(
-
         gray,
-
         (3, 3),
-
         0
     )
 
@@ -204,9 +221,9 @@ if uploaded_file:
     )
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # EXTRACT
-    # -----------------------------------------------------
+    # =====================================================
     if st.button("Extract Table"):
 
         with st.spinner(
@@ -222,18 +239,9 @@ if uploaded_file:
                     config="--psm 6"
                 )
 
-                lines = [
-
-                    line.strip()
-
-                    for line in text.split("\n")
-
-                    if line.strip()
-                ]
-
 
                 # -----------------------------------------
-                # RAW OCR TEXT
+                # RAW OCR
                 # -----------------------------------------
                 with st.expander(
                     "Raw OCR Text",
@@ -244,15 +252,15 @@ if uploaded_file:
 
 
                 # -----------------------------------------
-                # TABLE DATAFRAME
+                # PARSE TABLE
                 # -----------------------------------------
-                df = parse_table(lines)
+                df = parse_table(text)
 
 
                 if df.empty:
 
                     st.warning(
-                        "Could not structure table properly."
+                        "Could not detect table properly."
                     )
 
                 else:
