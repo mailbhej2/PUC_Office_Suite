@@ -1,16 +1,12 @@
 import cv2
 import tempfile
 import pandas as pd
+import pytesseract
 import streamlit as st
 
-from PIL import Image as PILImage
-from img2table.document import Image
-from img2table.ocr import TesseractOCR
+from PIL import Image
 
 
-# =========================================================
-# PAGE CONFIG
-# =========================================================
 st.set_page_config(
     layout="wide",
     page_title="Table Extractor"
@@ -19,9 +15,6 @@ st.set_page_config(
 st.title("Table Extractor")
 
 
-# =========================================================
-# UPLOAD IMAGE
-# =========================================================
 uploaded_file = st.file_uploader(
     "Upload Table Image",
     type=["jpg", "jpeg", "png"]
@@ -30,7 +23,7 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file:
 
-    image = PILImage.open(
+    image = Image.open(
         uploaded_file
     )
 
@@ -41,7 +34,7 @@ if uploaded_file:
 
 
     # =====================================================
-    # SAVE TEMP FILE
+    # SAVE TEMP IMAGE
     # =====================================================
     with tempfile.NamedTemporaryFile(
         delete=False,
@@ -54,7 +47,7 @@ if uploaded_file:
 
 
     # =====================================================
-    # PREPROCESS IMAGE
+    # PREPROCESS
     # =====================================================
     img = cv2.imread(temp_path)
 
@@ -85,7 +78,7 @@ if uploaded_file:
 
 
     # =====================================================
-    # EXTRACT TABLE
+    # EXTRACT
     # =====================================================
     if st.button("Extract Table"):
 
@@ -95,68 +88,40 @@ if uploaded_file:
 
             try:
 
-                ocr = TesseractOCR(
-                    n_threads=1
+                text = pytesseract.image_to_string(
+                    thresh
                 )
 
-                doc = Image(temp_path)
+                lines = [
 
-                tables = doc.extract_tables(
+                    line.strip()
 
-                    ocr=ocr,
+                    for line in text.split("\n")
 
-                    borderless_tables=True,
+                    if line.strip()
+                ]
 
-                    implicit_rows=True,
-
-                    implicit_columns=True,
-
-                    min_confidence=50
+                df = pd.DataFrame(
+                    {"Extracted Text": lines}
                 )
 
+                st.dataframe(
+                    df,
+                    use_container_width=True
+                )
 
-                # =========================================
-                # NO TABLE
-                # =========================================
-                if not tables:
+                st.download_button(
 
-                    st.warning(
-                        "No table detected."
-                    )
+                    "Download CSV",
 
+                    df.to_csv(
+                        index=False
+                    ).encode("utf-8"),
 
-                # =========================================
-                # SHOW DATA
-                # =========================================
-                else:
+                    "table.csv",
 
-                    df = pd.concat(
-
-                        [
-                            table.df
-                            for table in tables
-                        ],
-
-                        ignore_index=True
-                    )
-
-                    st.dataframe(
-                        df,
-                        use_container_width=True
-                    )
-
-                    st.download_button(
-
-                        "Download CSV",
-
-                        df.to_csv(
-                            index=False
-                        ).encode("utf-8"),
-
-                        "table.csv",
-
-                        "text/csv"
-                    )
+                    "text/csv"
+                )
 
             except Exception as e:
 
