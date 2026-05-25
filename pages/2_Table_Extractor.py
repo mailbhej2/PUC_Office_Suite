@@ -30,48 +30,100 @@ uploaded_file = st.file_uploader(
 # =========================================================
 # OCR LINE PARSER
 # =========================================================
+import re
+
+
 def parse_table(lines):
 
     rows = []
 
+    current = []
+
     for line in lines:
 
-        # split on multiple spaces / tabs
-        parts = [
+        # remove extra spaces
+        line = re.sub(
+            r"\s+",
+            " ",
+            line
+        ).strip()
 
-            x.strip()
 
-            for x in line
-            .replace("\t", "  ")
-            .split("  ")
+        # detect row starting with number
+        if re.match(r"^\d+", line):
 
-            if x.strip()
-        ]
+            if current:
+                rows.append(
+                    " ".join(current)
+                )
 
-        if len(parts) > 1:
-            rows.append(parts)
+            current = [line]
 
-    if not rows:
-        return pd.DataFrame()
+        else:
 
-    max_cols = max(len(r) for r in rows)
+            current.append(line)
 
-    rows = [
 
-        r + [""] * (max_cols - len(r))
+    if current:
+        rows.append(
+            " ".join(current)
+        )
 
-        for r in rows
-    ]
 
-    headers = rows[0]
+    final_rows = []
 
-    data = rows[1:]
+    for row in rows:
+
+        parts = re.split(
+            r"\s+(Serving|Retired)\s+",
+            row,
+            maxsplit=1
+        )
+
+        if len(parts) >= 3:
+
+            left = parts[0]
+
+            status = parts[1]
+
+            address = parts[2]
+
+
+            # extract serial no + name
+            m = re.match(
+                r"^(\d+)\.?\s*(.*)",
+                left
+            )
+
+            if m:
+
+                sr_no = m.group(1)
+
+                name = m.group(2)
+
+                final_rows.append([
+
+                    sr_no,
+
+                    name,
+
+                    status,
+
+                    address
+                ])
+
 
     return pd.DataFrame(
-        data,
-        columns=headers
-    )
 
+        final_rows,
+
+        columns=[
+            "Sr No",
+            "Name",
+            "Status",
+            "Address"
+        ]
+    )
 
 # =========================================================
 # PROCESS
