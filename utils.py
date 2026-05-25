@@ -2,6 +2,112 @@ import streamlit as st
 import pandas as pd
 import os
 from dotenv import load_dotenv
+from database import get_tasks, add_task, update_status, delete_task
+
+def task_planner():
+
+        st.markdown(
+            "##### Add New Task"
+        )
+
+        c1, c2, c3 = st.columns([5, 2, 1])
+
+        task_title = c1.text_input(
+            "Task Title",
+            label_visibility="collapsed",
+            placeholder="Enter task..."
+        )
+
+        scheduled_date = c2.date_input(
+            "Scheduled Date",
+            label_visibility="collapsed"
+        )
+
+        save_clicked = c3.button(
+            "Save",
+            use_container_width=True
+        )
+
+        if save_clicked:
+
+            if task_title.strip():
+                add_task(
+                    task_title,
+                    scheduled_date
+                )
+
+                st.rerun()
+
+        st.markdown("---")
+
+        st.markdown(
+            "##### Pending Tasks"
+        )
+
+        tasks = get_tasks()
+
+        if not tasks:
+
+            st.caption(
+                "No pending tasks available."
+            )
+
+        else:
+
+            for task in tasks:
+
+                c1, c2, c3, c4 = st.columns(
+                    [0.5, 6, 2, 1]
+                )
+
+                checked = c1.checkbox(
+                    "",
+                    value=task["status"] == "Done",
+                    key=f"done_{task['id']}"
+                )
+
+                new_status = (
+                    "Done"
+                    if checked
+                    else "Pending"
+                )
+
+                if new_status != task["status"]:
+                    update_status(
+                        task["id"],
+                        new_status
+                    )
+
+                    st.rerun()
+
+                c2.markdown(
+                    f"""
+                    <div style="
+                        padding-top:6px;
+                        font-size:15px;
+                    ">
+                        {task['task_title']}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+                c3.caption(
+                    task["scheduled_date"]
+                )
+
+                if c4.button(
+                        "Delete",
+                        key=f"del_{task['id']}",
+                        use_container_width=True
+                ):
+                    delete_task(
+                        task["id"]
+                    )
+
+                    st.rerun()
+
+
 
 def get_reminders():
     # =========================================================
@@ -107,6 +213,5 @@ def replace_placeholder(doc, data):
                 p._element.remove(
                     run._element
                 )
-
 
 

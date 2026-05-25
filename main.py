@@ -3,8 +3,7 @@ from docx import Document
 from datetime import date
 from io import BytesIO
 from style import local_css
-from utils import get_reminders, replace_placeholder
-from database import add_task, update_status, delete_task, get_tasks
+from utils import task_planner,get_reminders, replace_placeholder
 
 # =========================================================
 # PAGE CONFIG
@@ -53,88 +52,7 @@ with st.expander(
     expanded=False
 ):
 
-    c1, c2 = st.columns(2)
-
-    task_title = c1.text_input(
-        "Task Title"
-    )
-
-    scheduled_date = c2.date_input(
-        "Scheduled Date"
-    )
-
-    if st.button("Save Task"):
-
-        if task_title.strip():
-
-            add_task(
-                task_title,
-                scheduled_date
-            )
-
-            st.rerun()
-
-
-    st.divider()
-
-    st.subheader("Upcoming Tasks")
-
-    tasks = get_tasks()
-
-
-    if not tasks:
-
-        st.info(
-            "No pending tasks available."
-        )
-
-    else:
-
-        for task in tasks:
-
-            c1, c2, c3, c4 = st.columns(
-                [0.5, 5, 2, 1]
-            )
-
-            checked = c1.checkbox(
-                "",
-                value=task["status"] == "Done",
-                key=f"done_{task['id']}"
-            )
-
-            new_status = (
-                "Done"
-                if checked
-                else "Pending"
-            )
-
-            if new_status != task["status"]:
-
-                update_status(
-                    task["id"],
-                    new_status
-                )
-
-                st.rerun()
-
-            c2.write(
-                task["task_title"]
-            )
-
-            c3.write(
-                task["scheduled_date"]
-            )
-
-            if c4.button(
-                "Delete",
-                key=f"del_{task['id']}"
-            ):
-
-                delete_task(
-                    task["id"]
-                )
-
-                st.rerun()
+    task_planner()
 # =========================================================
 # REMINDERS
 # =========================================================
