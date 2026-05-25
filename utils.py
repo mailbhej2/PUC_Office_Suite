@@ -68,7 +68,7 @@ def task_planner():
 
             for task in tasks:
 
-                with st.container(border=True):
+                for i, task in enumerate(tasks):
 
                     c1, c2, c3, c4 = st.columns(
                         [1.4, 6, 2, 0.6]
@@ -120,6 +120,20 @@ def task_planner():
                         )
 
                         st.rerun()
+
+                    # Bottom Border Except Last Row
+                    if i != len(tasks) - 1:
+                        st.markdown(
+                            """
+                            <hr style="
+                                margin-top:0.3rem;
+                                margin-bottom:0.3rem;
+                                border:0;
+                                border-top:1px solid #eaeaea;
+                            ">
+                            """,
+                            unsafe_allow_html=True
+                        )
 
 
 
