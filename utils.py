@@ -154,7 +154,7 @@ def task_planner():
                             margin-top:0.3rem;
                             margin-bottom:0.3rem;
                             border:0;
-                            border-top:1px solid #eaeaea;
+                            border-top:1px solid #222222;
                         ">
                         """,
                         unsafe_allow_html=True
