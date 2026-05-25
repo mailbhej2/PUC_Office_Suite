@@ -55,7 +55,7 @@ def task_planner():
         else:
 
             header1, header2, header3, header4 = st.columns(
-                [0.5, 7, 2, 0.6]
+                [1.4, 6, 2, 0.6]
             )
 
             header1.caption("Status")
@@ -71,7 +71,7 @@ def task_planner():
                 with st.container(border=True):
 
                     c1, c2, c3, c4 = st.columns(
-                        [0.5, 7, 2, 0.6]
+                        [1.4, 6, 2, 0.6]
                     )
 
                     checked = c1.checkbox(
