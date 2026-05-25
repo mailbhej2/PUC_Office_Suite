@@ -8,6 +8,9 @@ from img2table.document import Image
 from img2table.ocr import TesseractOCR
 
 
+# =========================================================
+# PAGE CONFIG
+# =========================================================
 st.set_page_config(
     layout="wide",
     page_title="Table Extractor"
@@ -16,8 +19,11 @@ st.set_page_config(
 st.title("Table Extractor")
 
 
+# =========================================================
+# UPLOAD IMAGE
+# =========================================================
 uploaded_file = st.file_uploader(
-    "Upload Image",
+    "Upload Table Image",
     type=["jpg", "jpeg", "png"]
 )
 
@@ -57,12 +63,20 @@ if uploaded_file:
         cv2.COLOR_BGR2GRAY
     )
 
-    thresh = cv2.threshold(
+    thresh = cv2.adaptiveThreshold(
+
         gray,
-        150,
+
         255,
-        cv2.THRESH_BINARY
-    )[1]
+
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+
+        cv2.THRESH_BINARY,
+
+        11,
+
+        2
+    )
 
     cv2.imwrite(
         temp_path,
@@ -88,17 +102,32 @@ if uploaded_file:
                 doc = Image(temp_path)
 
                 tables = doc.extract_tables(
+
                     ocr=ocr,
-                    borderless_tables=True
+
+                    borderless_tables=True,
+
+                    implicit_rows=True,
+
+                    implicit_columns=True,
+
+                    min_confidence=50
                 )
 
 
+                # =========================================
+                # NO TABLE
+                # =========================================
                 if not tables:
 
                     st.warning(
                         "No table detected."
                     )
 
+
+                # =========================================
+                # SHOW DATA
+                # =========================================
                 else:
 
                     df = pd.concat(
@@ -117,11 +146,15 @@ if uploaded_file:
                     )
 
                     st.download_button(
+
                         "Download CSV",
+
                         df.to_csv(
                             index=False
                         ).encode("utf-8"),
+
                         "table.csv",
+
                         "text/csv"
                     )
 
