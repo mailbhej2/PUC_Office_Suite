@@ -59,7 +59,7 @@ def task_planner():
                 with st.container(border=True):
 
                     c1, c2, c3, c4 = st.columns(
-                        [0.6, 6, 2, 1]
+                        [0.5, 7, 2, 0.6]
                     )
 
                     checked = c1.checkbox(
@@ -85,9 +85,8 @@ def task_planner():
                     c2.markdown(
                         f"""
                         <div style="
-                            padding-top:4px;
-                            font-size:15px;
-                            font-weight:500;
+                            font-size:14px;
+                            padding-top:2px;
                         ">
                             {task['task_title']}
                         </div>
@@ -95,21 +94,12 @@ def task_planner():
                         unsafe_allow_html=True
                     )
 
-                    c3.markdown(
-                        f"""
-                        <div style="
-                            padding-top:6px;
-                            color:gray;
-                            font-size:13px;
-                        ">
-                            {task['scheduled_date']}
-                        </div>
-                        """,
-                        unsafe_allow_html=True
+                    c3.caption(
+                        task["scheduled_date"]
                     )
 
                     if c4.button(
-                            "Delete",
+                            "🗑",
                             key=f"del_{task['id']}",
                             use_container_width=True
                     ):
