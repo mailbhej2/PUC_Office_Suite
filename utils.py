@@ -6,11 +6,16 @@ from database import get_tasks, add_task, update_status, delete_task
 
 def task_planner():
 
+        # =================================================
+        # ADD TASK
+        # =================================================
         st.markdown(
             "##### Add New Task"
         )
 
-        c1, c2, c3 = st.columns([5, 2, 1])
+        c1, c2, c3 = st.columns(
+            [5, 2, 1]
+        )
 
         task_title = c1.text_input(
             "Task Title",
@@ -31,6 +36,7 @@ def task_planner():
         if save_clicked:
 
             if task_title.strip():
+
                 add_task(
                     task_title,
                     scheduled_date
@@ -38,13 +44,19 @@ def task_planner():
 
                 st.rerun()
 
+
         st.markdown("---")
 
+
+        # =================================================
+        # TASK LIST
+        # =================================================
         st.markdown(
             "##### Pending Tasks"
         )
 
         tasks = get_tasks()
+
 
         if not tasks:
 
@@ -54,86 +66,99 @@ def task_planner():
 
         else:
 
-            header1, header2, header3, header4 = st.columns(
+            # ---------------------------------------------
+            # HEADER
+            # ---------------------------------------------
+            h1, h2, h3, h4 = st.columns(
                 [1.4, 6, 2, 0.6]
             )
 
-            header1.caption("Status")
+            h1.caption("Status")
 
-            header2.caption("Task")
+            h2.caption("Task")
 
-            header3.caption("Date")
+            h3.caption("Date")
 
-            header4.caption("Delete")
+            h4.caption("Delete")
 
-            for task in tasks:
 
-                for i, task in enumerate(tasks):
+            # ---------------------------------------------
+            # TASK ROWS
+            # ---------------------------------------------
+            for i, task in enumerate(tasks):
 
-                    c1, c2, c3, c4 = st.columns(
-                        [1.4, 6, 2, 0.6]
+                c1, c2, c3, c4 = st.columns(
+                    [1.4, 6, 2, 0.6]
+                )
+
+                checked = c1.checkbox(
+                    "",
+                    value=task["status"] == "Done",
+                    key=f"done_{task['id']}_{i}"
+                )
+
+                new_status = (
+                    "Done"
+                    if checked
+                    else "Pending"
+                )
+
+                if new_status != task["status"]:
+
+                    update_status(
+                        task["id"],
+                        new_status
                     )
 
-                    checked = c1.checkbox(
-                        "",
-                        value=task["status"] == "Done",
-                        key=f"done_{task['id']}"
+                    st.rerun()
+
+
+                c2.markdown(
+                    f"""
+                    <div style="
+                        font-size:14px;
+                        padding-top:2px;
+                    ">
+                        {task['task_title']}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+                c3.caption(
+                    task["scheduled_date"]
+                )
+
+
+                if c4.button(
+                    "🗑",
+                    key=f"del_{task['id']}_{i}",
+                    use_container_width=True
+                ):
+
+                    delete_task(
+                        task["id"]
                     )
 
-                    new_status = (
-                        "Done"
-                        if checked
-                        else "Pending"
-                    )
+                    st.rerun()
 
-                    if new_status != task["status"]:
-                        update_status(
-                            task["id"],
-                            new_status
-                        )
 
-                        st.rerun()
+                # -----------------------------------------
+                # BOTTOM BORDER EXCEPT LAST ROW
+                # -----------------------------------------
+                if i != len(tasks) - 1:
 
-                    c2.markdown(
-                        f"""
-                        <div style="
-                            font-size:14px;
-                            padding-top:2px;
+                    st.markdown(
+                        """
+                        <hr style="
+                            margin-top:0.3rem;
+                            margin-bottom:0.3rem;
+                            border:0;
+                            border-top:1px solid #eaeaea;
                         ">
-                            {task['task_title']}
-                        </div>
                         """,
                         unsafe_allow_html=True
                     )
-
-                    c3.caption(
-                        task["scheduled_date"]
-                    )
-
-                    if c4.button(
-                            "🗑",
-                            key=f"del_{task['id']}",
-                            use_container_width=True
-                    ):
-                        delete_task(
-                            task["id"]
-                        )
-
-                        st.rerun()
-
-                    # Bottom Border Except Last Row
-                    if i != len(tasks) - 1:
-                        st.markdown(
-                            """
-                            <hr style="
-                                margin-top:0.3rem;
-                                margin-bottom:0.3rem;
-                                border:0;
-                                border-top:1px solid #eaeaea;
-                            ">
-                            """,
-                            unsafe_allow_html=True
-                        )
 
 
 
