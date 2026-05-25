@@ -48,7 +48,7 @@ with nav3:
 # Task planner
 # ===================================================
 with st.expander(
-    "Task Planner",
+    "📋 Task Planner",
     expanded=False
 ):
 
