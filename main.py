@@ -50,7 +50,7 @@ with nav3:
 # ===================================================
 with st.expander(
     "Task Planner",
-    expanded=True
+    expanded=False
 ):
 
     c1, c2 = st.columns(2)
@@ -140,7 +140,7 @@ with st.expander(
 # =========================================================
 with st.expander(
     "🔔 Upcoming Reminders",
-    expanded=True
+    expanded=False
 ):
 
     get_reminders()
