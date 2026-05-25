@@ -25,6 +25,19 @@ def get_tasks():
 
     return response.data
 
+def get_pending_tasks():
+    response = (
+
+        supabase.table("tasks")
+
+        .select("*")
+
+        .eq("status", "Pending")
+
+        .execute()
+    )
+
+    return response.data
 
 # =====================================================
 # ADD TASK

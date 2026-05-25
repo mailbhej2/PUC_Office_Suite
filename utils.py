@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 from dotenv import load_dotenv
-from database import get_tasks, add_task, update_status, delete_task
+from database import get_tasks, get_pending_tasks,add_task, update_status, delete_task
 
 def task_planner():
 
@@ -51,8 +51,11 @@ def task_planner():
         # =================================================
         # TASK LIST
         # =================================================
+        pending_tasks = get_pending_tasks()
+        total_pending_tasks = len(pending_tasks)
+
         st.markdown(
-            "##### Pending Tasks"
+            f"##### Pending Tasks ({total_pending_tasks})"
         )
 
         tasks = get_tasks()
