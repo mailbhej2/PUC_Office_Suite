@@ -1,6 +1,7 @@
-import streamlit as st
-import tempfile
 import cv2
+import tempfile
+import pandas as pd
+import streamlit as st
 
 from PIL import Image as PILImage
 from img2table.document import Image
@@ -12,16 +13,16 @@ st.set_page_config(
     page_title="Table Extractor"
 )
 
-st.title("Table Extractor from Image")
+st.title("Table Extractor")
 
 
 uploaded_file = st.file_uploader(
-    "Upload table image",
+    "Upload Image",
     type=["jpg", "jpeg", "png"]
 )
 
 
-if uploaded_file is not None:
+if uploaded_file:
 
     image = PILImage.open(
         uploaded_file
@@ -29,13 +30,12 @@ if uploaded_file is not None:
 
     st.image(
         image,
-        caption="Uploaded Image",
         use_container_width=True
     )
 
 
     # =====================================================
-    # SAVE TEMP IMAGE
+    # SAVE TEMP FILE
     # =====================================================
     with tempfile.NamedTemporaryFile(
         delete=False,
@@ -71,12 +71,12 @@ if uploaded_file is not None:
 
 
     # =====================================================
-    # EXTRACT
+    # EXTRACT TABLE
     # =====================================================
     if st.button("Extract Table"):
 
         with st.spinner(
-            "Extracting table..."
+            "Extracting..."
         ):
 
             try:
@@ -93,12 +93,22 @@ if uploaded_file is not None:
                 )
 
 
-                if tables:
+                if not tables:
 
-                    df = tables[0].df
+                    st.warning(
+                        "No table detected."
+                    )
 
-                    st.subheader(
-                        "Extracted Data"
+                else:
+
+                    df = pd.concat(
+
+                        [
+                            table.df
+                            for table in tables
+                        ],
+
+                        ignore_index=True
                     )
 
                     st.dataframe(
@@ -106,21 +116,13 @@ if uploaded_file is not None:
                         use_container_width=True
                     )
 
-                    csv = df.to_csv(
-                        index=False
-                    ).encode("utf-8")
-
                     st.download_button(
-                        label="Download CSV",
-                        data=csv,
-                        file_name="extracted_table.csv",
-                        mime="text/csv"
-                    )
-
-                else:
-
-                    st.warning(
-                        "No table detected."
+                        "Download CSV",
+                        df.to_csv(
+                            index=False
+                        ).encode("utf-8"),
+                        "table.csv",
+                        "text/csv"
                     )
 
             except Exception as e:
