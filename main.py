@@ -88,7 +88,7 @@ with st.form("main_form"):
         "File Number"
     )
 
-    dealing_head = file_number.split("-")[-1]
+    dealing_head = file_number[-6:]
     dealing = f'for {dealing_head}' if dealing_head != "3IB-II" else "Deepak Soni"
 
     branch_cfms_number = c2.text_input(
