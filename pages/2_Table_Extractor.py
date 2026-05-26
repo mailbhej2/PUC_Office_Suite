@@ -20,63 +20,104 @@ st.title("Table Extractor")
 
 
 # =========================================================
-# SMART TABLE PARSER
+# ROBUST TABLE PARSER
 # =========================================================
 def parse_table(text):
 
     # -----------------------------------------------------
-    # CLEAN TEXT
+    # CLEAN LINES
     # -----------------------------------------------------
-    text = re.sub(
-        r"[|_\[\]]",
-        " ",
-        text
-    )
+    lines = [
 
-    text = re.sub(
-        r"\s+",
-        " ",
-        text
-    )
+        re.sub(
+            r"\s+",
+            " ",
+            line
+        ).strip()
+
+        for line in text.split("\n")
+
+        if line.strip()
+    ]
 
 
     # -----------------------------------------------------
-    # SPLIT ROWS USING SERIAL NUMBERS
+    # BUILD LOGICAL ROWS
     # -----------------------------------------------------
-    rows = re.split(
-        r"(?=\s\d{1,2}\.?\s)",
-        text
-    )
+    rows = []
 
+    current_row = ""
+
+
+    for line in lines:
+
+        # remove OCR garbage chars
+        line = re.sub(
+            r"[|_\[\]]",
+            " ",
+            line
+        )
+
+        line = re.sub(
+            r"\s+",
+            " ",
+            line
+        ).strip()
+
+
+        # detect new row using serial no
+        is_new_row = re.match(
+            r"^\d{1,2}[\.\)]?\s",
+            line
+        )
+
+
+        if is_new_row:
+
+            if current_row:
+
+                rows.append(
+                    current_row.strip()
+                )
+
+            current_row = line
+
+        else:
+
+            current_row += " " + line
+
+
+    if current_row:
+
+        rows.append(
+            current_row.strip()
+        )
+
+
+    # -----------------------------------------------------
+    # PARSE ROWS
+    # -----------------------------------------------------
     final_rows = []
 
 
-    # -----------------------------------------------------
-    # PROCESS EACH ROW
-    # -----------------------------------------------------
     for row in rows:
 
-        row = row.strip()
-
-        if not row:
-            continue
-
-
-        # Extract serial no
+        # extract serial number
         sr_match = re.match(
-            r"(\d{1,2})\.?\s+(.*)",
+            r"^(\d{1,2})[\.\)]?\s+(.*)",
             row
         )
 
         if not sr_match:
             continue
 
+
         sr_no = sr_match.group(1)
 
         remaining = sr_match.group(2)
 
 
-        # Detect status
+        # detect status
         status_match = re.search(
             r"\b(Serving|Retired)\b",
             remaining,
@@ -86,29 +127,37 @@ def parse_table(text):
         if not status_match:
             continue
 
+
         status = status_match.group(1)
 
-        split_index = status_match.start()
 
-        name = remaining[:split_index].strip()
+        # split name and address
+        name = remaining[
+            :status_match.start()
+        ].strip()
 
         address = remaining[
             status_match.end():
         ].strip()
 
 
-        # Remove garbage OCR chars
+        # cleanup
         name = re.sub(
-            r"[^A-Za-z0-9.&()\\-\\s]",
+            r"[^A-Za-z0-9.,&()\-\/\s]",
             "",
             name
         )
 
         address = re.sub(
-            r"\\s+",
+            r"\s+",
             " ",
             address
         ).strip()
+
+
+        # skip false rows
+        if len(name) < 3:
+            continue
 
 
         final_rows.append([
@@ -137,7 +186,7 @@ def parse_table(text):
 
 
 # =========================================================
-# UPLOAD IMAGE
+# FILE UPLOAD
 # =========================================================
 uploaded_file = st.file_uploader(
     "Upload Table Image",
@@ -161,7 +210,7 @@ if uploaded_file:
 
 
     # -----------------------------------------------------
-    # SAVE TEMP FILE
+    # SAVE TEMP IMAGE
     # -----------------------------------------------------
     with tempfile.NamedTemporaryFile(
         delete=False,
@@ -174,7 +223,7 @@ if uploaded_file:
 
 
     # -----------------------------------------------------
-    # PREPROCESS IMAGE
+    # IMAGE PREPROCESSING
     # -----------------------------------------------------
     img = cv2.imread(temp_path)
 
@@ -183,7 +232,8 @@ if uploaded_file:
         cv2.COLOR_BGR2GRAY
     )
 
-    # upscale
+
+    # upscale image
     gray = cv2.resize(
 
         gray,
@@ -197,6 +247,7 @@ if uploaded_file:
         interpolation=cv2.INTER_CUBIC
     )
 
+
     # denoise
     gray = cv2.GaussianBlur(
         gray,
@@ -204,7 +255,8 @@ if uploaded_file:
         0
     )
 
-    # threshold
+
+    # adaptive threshold
     thresh = cv2.adaptiveThreshold(
 
         gray,
@@ -222,7 +274,7 @@ if uploaded_file:
 
 
     # =====================================================
-    # EXTRACT
+    # EXTRACT TABLE
     # =====================================================
     if st.button("Extract Table"):
 
@@ -241,7 +293,7 @@ if uploaded_file:
 
 
                 # -----------------------------------------
-                # RAW OCR
+                # RAW OCR TEXT
                 # -----------------------------------------
                 with st.expander(
                     "Raw OCR Text",
@@ -252,7 +304,7 @@ if uploaded_file:
 
 
                 # -----------------------------------------
-                # PARSE TABLE
+                # STRUCTURED TABLE
                 # -----------------------------------------
                 df = parse_table(text)
 
@@ -260,7 +312,7 @@ if uploaded_file:
                 if df.empty:
 
                     st.warning(
-                        "Could not detect table properly."
+                        "Could not structure table properly."
                     )
 
                 else:
