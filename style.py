@@ -8,7 +8,7 @@ def local_css():
         max-width:1024px !important;
     }
     .stAppHeader{
-        background-color: #e66515 !important;
+        background-color: #5D4037 !important;
     }
   
     .stAlertContainer{
