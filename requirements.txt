@@ -1,0 +1,10 @@
+supabase
+streamlit
+python-docx
+pandas
+python-dotenv
+requests
+pytesseract
+Pillow
+numpy
+opencv-contrib-python-headless
